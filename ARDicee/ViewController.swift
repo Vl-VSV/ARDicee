@@ -47,11 +47,25 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                return
             }
             let results = sceneView.session.raycast(query)
-            if !results.isEmpty {
-                print("Touched the plane")
-            } else {
-                print("Touched something else")
+            if let hitResult = results.first {
+                print(hitResult)
+                
+                let position = SCNVector3(
+                    x: hitResult.worldTransform.columns.3.x,
+                    y: hitResult.worldTransform.columns.3.y,
+                    z: hitResult.worldTransform.columns.3.z)
+                
+                spawnDice(position)
             }
+        }
+    }
+    
+    func spawnDice(_ position : SCNVector3){
+        let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")
+        
+        if let diceNode = diceScene?.rootNode.childNode(withName: "Dice", recursively: true){
+            diceNode.position = position
+            sceneView.scene.rootNode.addChildNode(diceNode)
         }
     }
     
