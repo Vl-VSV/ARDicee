@@ -22,22 +22,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         //sceneView.showsStatistics = true
         
         sceneView.autoenablesDefaultLighting = true
-        
-//        let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")!
-//
-//        if let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) {
-//            diceNode.position = SCNVector3(x: 0, y: 0, z: -0.1)
-//
-//            sceneView.scene.rootNode.addChildNode(diceNode)
-//        }
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
- 
+        
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = .horizontal
-
+        
         sceneView.session.run(configuration)
     }
     
@@ -45,6 +38,21 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         super.viewWillDisappear(animated)
         
         sceneView.session.pause()
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            let location = touch.location(in: sceneView)
+            guard let query = sceneView.raycastQuery(from: location, allowing: .existingPlaneGeometry, alignment: .any) else {
+               return
+            }
+            let results = sceneView.session.raycast(query)
+            if !results.isEmpty {
+                print("Touched the plane")
+            } else {
+                print("Touched something else")
+            }
+        }
     }
     
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
