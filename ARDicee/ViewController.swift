@@ -19,8 +19,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         super.viewDidLoad()
         
         sceneView.delegate = self
-        sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
         
+        //sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
         //sceneView.showsStatistics = true
         
         sceneView.autoenablesDefaultLighting = true
@@ -41,6 +41,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         sceneView.session.pause()
     }
+    
+    //MARK: - Dice Rendering Methods
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
@@ -76,6 +78,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
+    func roll(_ dice : SCNNode){
+        let randomX = Float(Int.random(in: 1 ... 5)) * (Float.pi/2)
+        let randomZ = Float(Int.random(in: 1 ... 5)) * (Float.pi/2)
+        
+        dice.runAction(SCNAction.rotateBy(x: CGFloat(randomX) * 5, y: 0, z: CGFloat(randomZ) * 5, duration: 0.5))
+        
+    }
+    
     func rollAll(){
         if !diceArray.isEmpty{
             for dice in diceArray{
@@ -84,13 +94,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
-    func roll(_ dice : SCNNode){
-        let randomX = Float(Int.random(in: 1 ... 5)) * (Float.pi/2)
-        let randomZ = Float(Int.random(in: 1 ... 5)) * (Float.pi/2)
-        
-        dice.runAction(SCNAction.rotateBy(x: CGFloat(randomX) * 5, y: 0, z: CGFloat(randomZ) * 5, duration: 0.5))
-        
-    }
     
     @IBAction func rollAgain(_ sender: Any) {
         rollAll()
@@ -109,27 +112,34 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
+    //MARK: - ARSCNViewDelegateMethods
+    
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
-        if anchor is ARPlaneAnchor{
-            let planeAnchor = anchor as! ARPlaneAnchor
-            
-            let plane = SCNPlane(width: CGFloat(planeAnchor.planeExtent.width), height: CGFloat(planeAnchor.planeExtent.height))
-            
-            let planeNode = SCNNode()
-            planeNode.position = SCNVector3(x: planeAnchor.center.x, y: 0, z: planeAnchor.center.z)
-            planeNode.transform = SCNMatrix4MakeRotation(-Float.pi/2, 1, 0, 0)
-            
-            let gridMaterial = SCNMaterial()
-            gridMaterial.diffuse.contents = UIImage(named: "art.scnassets/grid.png")
-            
-            plane.materials = [gridMaterial]
-            
-            planeNode.geometry = plane
-            
-            node.addChildNode(planeNode)
-        }
-        else {
+        
+        guard let planeAnchor = anchor as? ARPlaneAnchor else {
             return
         }
+        let planeNode = createPlane(withPlaneAnchor: planeAnchor)
+        node.addChildNode(planeNode)
+    }
+    
+    //MARK: - Plane rendering
+    
+    func createPlane(withPlaneAnchor planeAnchor : ARPlaneAnchor) -> SCNNode{
+        
+        let plane = SCNPlane(width: CGFloat(planeAnchor.planeExtent.width), height: CGFloat(planeAnchor.planeExtent.height))
+
+        let planeNode = SCNNode()
+        planeNode.position = SCNVector3(x: planeAnchor.center.x, y: 0, z: planeAnchor.center.z)
+        planeNode.transform = SCNMatrix4MakeRotation(-Float.pi/2, 1, 0, 0)
+
+        let gridMaterial = SCNMaterial()
+        gridMaterial.diffuse.contents = UIImage(named: "art.scnassets/grid.png")
+
+        plane.materials = [gridMaterial]
+
+        planeNode.geometry = plane
+
+        return planeNode
     }
 }
