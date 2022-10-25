@@ -101,6 +101,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     
+    @IBAction func removeAllDices(_ sender: Any) {
+        if !diceArray.isEmpty {
+            for dice in diceArray{
+                dice.removeFromParentNode()
+            }
+        }
+    }
     
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         if anchor is ARPlaneAnchor{
