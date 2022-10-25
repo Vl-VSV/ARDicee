@@ -10,7 +10,7 @@ import SceneKit
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
-
+    
     @IBOutlet var sceneView: ARSCNView!
     
     override func viewDidLoad() {
@@ -22,7 +22,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         //sceneView.showsStatistics = true
         
         sceneView.autoenablesDefaultLighting = true
-
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -44,7 +44,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         if let touch = touches.first {
             let location = touch.location(in: sceneView)
             guard let query = sceneView.raycastQuery(from: location, allowing: .existingPlaneGeometry, alignment: .any) else {
-               return
+                return
             }
             let results = sceneView.session.raycast(query)
             if let hitResult = results.first {
@@ -65,6 +65,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         if let diceNode = diceScene?.rootNode.childNode(withName: "Dice", recursively: true){
             diceNode.position = position
+            
+            let randomX = Float(Int.random(in: 1 ... 5)) * (Float.pi/2)
+            let randomZ = Float(Int.random(in: 1 ... 5)) * (Float.pi/2)
+            
+            diceNode.runAction(SCNAction.rotateBy(x: CGFloat(randomX) * 5, y: 0, z: CGFloat(randomZ) * 5, duration: 0.5))
+            
             sceneView.scene.rootNode.addChildNode(diceNode)
         }
     }
